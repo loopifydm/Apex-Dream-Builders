@@ -39,6 +39,19 @@
     </main>
   </div>
   <div class="modal-backdrop" id="modalBackdrop"><div class="modal" id="modal"></div></div><div class="toast" id="toast"></div>
+  <script>
+  (function(){
+    function recover(message){
+      if(document.getElementById('apexRecovery')) return;
+      var box=document.createElement('div'); box.id='apexRecovery';
+      box.style='position:fixed;inset:0;z-index:99999;background:#062b49f2;display:flex;align-items:center;justify-content:center;padding:20px;font-family:Arial,sans-serif';
+      box.innerHTML='<div style="max-width:520px;background:#fff;border-radius:18px;padding:28px;text-align:center;box-shadow:0 20px 60px #0006"><div style="font-size:40px">⚠️</div><h2>APEX Portal Recovery</h2><p>The portal encountered a temporary error. Your saved records have not been intentionally deleted.</p><p style="color:#777;font-size:13px">'+String(message||'Temporary error').replace(/[<>]/g,'')+'</p><button id="apexReload" style="border:0;border-radius:10px;padding:12px 22px;background:#f57c00;color:#fff;font-weight:700">Reload safely</button></div>';
+      document.body.appendChild(box); document.getElementById('apexReload').onclick=function(){location.reload();};
+    }
+    window.addEventListener('error',function(e){console.error('APEX error',e.error||e.message);recover('A temporary browser error was detected.');});
+    window.addEventListener('unhandledrejection',function(e){console.error('APEX promise error',e.reason);recover('A background operation failed.');});
+  })();
+  </script>
   <script src="app.js?v=13"></script>
   <script src="auth.js?v=14"></script>
 </body>
