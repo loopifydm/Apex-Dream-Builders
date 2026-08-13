@@ -181,8 +181,8 @@ function csvDownload(filename, rows){
   const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;a.click();URL.revokeObjectURL(a.href);
 }
 function exportCSV(){
-  const rows=[["TYPE","DATE","SITE","DESCRIPTION","SUPERVISOR","CATEGORY","QUANTITY","UNIT","RATE","TOTAL","NOTES"]];
-  state.measurements.forEach(x=>rows.push(["MEASUREMENT",x.date,x.site,x.work,x.supervisor,"",x.quantity,x.unit,"","",x.notes]));
+  const rows=[["TYPE","DATE","SITE","DESCRIPTION","SUPERVISOR","CATEGORY","LENGTH","BREADTH","HEIGHT","QUANTITY","UNIT","RATE","TOTAL","NOTES"]];
+  state.measurements.forEach(x=>rows.push(["MEASUREMENT",x.date,x.site,x.work,x.supervisor,"",x.lemgth,x.breadth,x.height,x.quantity,x.unit,"","",x.notes]));
   state.materials.forEach(x=>rows.push(["MATERIAL",x.date,x.site,x.item,x.supervisor,"",x.qty,x.unit,x.rate,x.total,x.notes]));
   state.labour.forEach(x=>rows.push(["LABOUR",x.date,x.site,"",x.supervisor,x.category,x.count,"","","",x.notes]));
   csvDownload("apex-construction-report.csv",rows);showToast("CSV report exported.");
