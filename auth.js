@@ -1,10 +1,13 @@
-// APEX Dream Builders authentication v12
-const AUTH_KEY = "apexAuthV12";
-const ADMIN_HASH = "4e13cc3419dd7fc5bc552e6d6e942081dcefe8a913250aa4ba18e1ef0ec1b2f";
+// APEX Dream Builders authentication v13
+const AUTH_KEY = "apexAuthV13";
+const ADMIN_HASHES = new Set([
+  "4e13cc3419dd7fc5bc552e6d6e942081dcefe8a913250aa4ba18e1ef0ec1b2f", // Apexdream
+  "8c8e5a062482de8124b2016fbb9bfbeed33873c41bf3c4e99f304b77fc4ccb64"  // previous APEX Dream
+]);
 const USERS = {
-  "apex admin": { role: "admin", name: "Apex Admin", passHash: ADMIN_HASH },
-  "apexadmin": { role: "admin", name: "Apex Admin", passHash: ADMIN_HASH },
-  "admin": { role: "admin", name: "Apex Admin", passHash: ADMIN_HASH },
+  "apex admin": { role: "admin", name: "Apex Admin" },
+  "apexadmin": { role: "admin", name: "Apex Admin" },
+  "admin": { role: "admin", name: "Apex Admin" },
   "mani": { role: "supervisor", name: "Mani", passHash: "ffede868630e4e4acf9f46e18d6c926e35153553c8077f5cb20ae84b1b88ba36" },
   "prasanth": { role: "supervisor", name: "Prasanth", passHash: "aa1f26d2e58f122d775e6a49d01a13ac5ef72d813263836759ca8cda3e56d54e" }
 };
@@ -26,20 +29,20 @@ function authScreen(){
     e.preventDefault();
     const username=document.getElementById("loginUser").value.trim().toLowerCase().replace(/\s+/g," ");
     const password=document.getElementById("loginPass").value.trim();
-    const key=(username==="apexadmin"||username==="admin")?username:username;
-    const user=USERS[key];
+    const user=USERS[username];
     const error=document.getElementById("loginError");
     if(!user){error.textContent="Invalid username or password.";return;}
     try{
       const hash=await sha256(password);
-      if(hash!==user.passHash){error.textContent="Invalid username or password.";return;}
+      const valid = user.role === "admin" ? ADMIN_HASHES.has(hash) : hash === user.passHash;
+      if(!valid){error.textContent="Invalid username or password.";return;}
     }catch(err){error.textContent="Login service unavailable. Please refresh and try again.";return;}
     currentUser={role:user.role,name:user.name};
     sessionStorage.setItem(AUTH_KEY,JSON.stringify(currentUser));
-    window.location.replace(window.location.pathname+"?session=12");
+    window.location.replace(window.location.pathname+"?session=13");
   });
 }
-function logout(){sessionStorage.removeItem(AUTH_KEY);currentUser=null;window.location.replace(window.location.pathname+"?logout=12");}
+function logout(){sessionStorage.removeItem(AUTH_KEY);currentUser=null;window.location.replace(window.location.pathname+"?logout=13");}
 function addUserControls(){
   const top=document.querySelector(".top-actions"); if(!top||document.getElementById("userBadge"))return;
   top.insertAdjacentHTML("afterbegin",`<span class="user-badge" id="userBadge"></span><button class="btn btn-secondary" id="logoutBtn">Logout</button>`);
