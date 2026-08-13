@@ -1,7 +1,7 @@
 // APEX Dream Builders - role based access
 const AUTH_KEY = "apexAuthV1";
 const USERS = {
-  "apex admin": { role: "admin", name: "Apex Admin", passHash: "8c8e5a062482de8124b2016fbb9bfbeed33873c41bf3c4e99f304b77fc4ccb64" },
+  "apex admin": { role: "admin", name: "Apex Admin", passHash: "4e13cc3419dd7fc5bc552e6d6e942081dcefe8a913250aa4ba18e1ef0ec1b2f" },
   "mani": { role: "supervisor", name: "Mani", passHash: "ffede868630e4e4acf9f46e18d6c926e35153553c8077f5cb20ae84b1b88ba36" },
   "prasanth": { role: "supervisor", name: "Prasanth", passHash: "aa1f26d2e58f122d775e6a49d01a13ac5ef72d813263836759ca8cda3e56d54e" }
 };
@@ -36,7 +36,6 @@ function authScreen() {
   });
 }
 function logout(){ sessionStorage.removeItem(AUTH_KEY); currentUser=null; window.location.href=window.location.pathname+"?logout=1"; }
-
 function addUserControls(){
   const top=document.querySelector(".top-actions");
   if(!top || document.getElementById("userBadge")) return;
@@ -60,20 +59,16 @@ function applyRoleAccess(){
   document.getElementById("authRoot")?.classList.remove("show");
   addUserControls();
   if(!isSupervisor()) return;
-  // Supervisor UI: Dashboard + the three allowed entry areas only.
   document.querySelectorAll('.nav-item').forEach(el=>{el.hidden=!SUPERVISOR_ALLOWED_SECTIONS.has(el.dataset.section);});
   document.querySelectorAll('.section').forEach(el=>{if(!SUPERVISOR_ALLOWED_SECTIONS.has(el.id))el.hidden=true;});
   document.querySelectorAll('[data-action="quick-add"],[data-action="supervisor"],[data-action="export-csv"],[data-action="backup"]').forEach(el=>el.hidden=true);
   document.querySelectorAll('[data-delete]').forEach(el=>el.hidden=true);
-  // Hide any future admin-only controls added dynamically.
   new MutationObserver(()=>{
     document.querySelectorAll('.nav-item').forEach(el=>{el.hidden=!SUPERVISOR_ALLOWED_SECTIONS.has(el.dataset.section);});
     document.querySelectorAll('.section').forEach(el=>{if(!SUPERVISOR_ALLOWED_SECTIONS.has(el.id))el.hidden=true;});
     document.querySelectorAll('[data-action="quick-add"],[data-action="supervisor"],[data-action="export-csv"],[data-action="backup"],[data-delete]').forEach(el=>el.hidden=true);
   }).observe(document.body,{subtree:true,childList:true});
 }
-
-// Capture clicks before app.js receives them.
 document.addEventListener("click",e=>{
   if(!currentUser || !isSupervisor()) return;
   const nav=e.target.closest(".nav-item");
@@ -84,8 +79,6 @@ document.addEventListener("click",e=>{
   const del=e.target.closest("[data-delete]");
   if(del){e.preventDefault();e.stopImmediatePropagation();showToast("Supervisors cannot delete records.");return;}
 },{capture:true});
-
-// Ensure supervisor identity cannot be changed in the three allowed forms.
 document.addEventListener("submit",e=>{
   if(!isSupervisor())return;
   if(["measurementForm","materialForm","labourForm"].includes(e.target.id)){
@@ -93,5 +86,4 @@ document.addEventListener("submit",e=>{
     if(select) select.value=currentUser.name;
   }
 },{capture:true});
-
 window.addEventListener("DOMContentLoaded",()=>{if(currentUser)ensureConfiguredSupervisors();applyRoleAccess();});
