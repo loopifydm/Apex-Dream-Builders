@@ -31,8 +31,7 @@ function authScreen() {
     </form>
   </div>`;
   root.classList.add("show");
-  const form = document.getElementById("loginForm");
-  form.addEventListener("submit", async function(e) {
+  document.getElementById("loginForm").addEventListener("submit", async function(e) {
     e.preventDefault();
     const error = document.getElementById("loginError");
     error.textContent = "Checking login...";
@@ -80,25 +79,62 @@ function applyRoleAccess() {
   document.getElementById("authRoot")?.classList.remove("show");
   addUserControls();
   if (isSupervisor()) {
+    // Supervisors may use Dashboard, Measurements, Material Buying and Daily Labour only.
     document.querySelectorAll('.nav-item[data-section="supervisors"], .nav-item[data-section="reports"]').forEach(el => el.hidden = true);
+    document.querySelectorAll('[data-action="quick-add"], [data-action="supervisor"], [data-action="export-csv"], [data-action="backup"]').forEach(el => el.hidden = true);
   }
 }
 
-// Supervisor is forced to use the logged-in name when submitting the three allowed forms.
 function forceLoggedInSupervisor(formId) {
   if (!isSupervisor()) return;
-  const select = document.querySelector(`#${formId} select[name="supervisor"]`);
+  const form = document.getElementById(formId);
+  if (!form) return;
+  const select = form.querySelector('select[name="supervisor"]');
   if (select) {
+    select.value = currentUser.name;
     select.innerHTML = `<option selected value="${esc(currentUser.name)}">${esc(currentUser.name)} (Logged in)</option>`;
   }
 }
 
-const _measurementForm = window.measurementForm;
-const _materialForm = window.materialForm;
-const _labourForm = window.labourForm;
-if (_measurementForm) window.measurementForm = function(){ if(!currentUser)return authScreen(); _measurementForm(); forceLoggedInSupervisor("measurementForm"); };
-if (_materialForm) window.materialForm = function(){ if(!currentUser)return authScreen(); _materialForm(); forceLoggedInSupervisor("materialForm"); };
-if (_labourForm) window.labourForm = function(){ if(!currentUser)return authScreen(); _labourForm(); forceLoggedInSupervisor("labourForm"); };
+// Enforce permissions before the original app.js click handler receives the event.
+document.addEventListener("click", function(e) {
+  if (!currentUser) return;
+  if (!isSupervisor()) return;
+
+  const nav = e.target.closest(".nav-item");
+  if (nav && ["supervisors", "reports"].includes(nav.dataset.section)) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    showToast("Admin access required.");
+    return;
+  }
+
+  const actionEl = e.target.closest("[data-action]");
+  const action = actionEl?.dataset.action;
+  if (["supervisor", "export-csv", "backup", "quick-add"].includes(action)) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    showToast("Supervisor can add only Measurement, Material Buying and Daily Labour.");
+    return;
+  }
+
+  const del = e.target.closest("[data-delete]");
+  if (del) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    showToast("Supervisors cannot delete records.");
+  }
+}, true);
+
+// Force the logged-in supervisor name into all three allowed submissions.
+document.addEventListener("submit", function(e) {
+  if (!isSupervisor()) return;
+  const form = e.target;
+  if (["measurementForm", "materialForm", "labourForm"].includes(form.id)) {
+    const select = form.querySelector('select[name="supervisor"]');
+    if (select) select.value = currentUser.name;
+  }
+}, true);
 
 window.addEventListener("DOMContentLoaded", function() {
   if (currentUser) ensureConfiguredSupervisors();
