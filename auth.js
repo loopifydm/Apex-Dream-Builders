@@ -11,12 +11,10 @@ const isAdmin = () => currentUser?.role === "admin";
 const isSupervisor = () => currentUser?.role === "supervisor";
 const SUPERVISOR_ALLOWED_ACTIONS = new Set(["measurement","material","labour","close-modal"]);
 const SUPERVISOR_ALLOWED_SECTIONS = new Set(["dashboard","measurements","materials","labour"]);
-
 async function hashPassword(value) {
   const digest = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
   return Array.from(new Uint8Array(digest)).map(x => x.toString(16).padStart(2,"0")).join("");
 }
-
 function authScreen() {
   const root = document.getElementById("authRoot");
   if (!root) return;
@@ -26,8 +24,9 @@ function authScreen() {
     e.preventDefault();
     const error=document.getElementById("loginError");
     try {
-      const username=document.getElementById("loginUser").value.trim().toLowerCase();
-      const user=USERS[username];
+      const username=document.getElementById("loginUser").value.trim().toLowerCase().replace(/\s+/g, " ");
+      const lookupKey = username === "apexadmin" ? "apex admin" : username;
+      const user=USERS[lookupKey];
       if(!user || await hashPassword(document.getElementById("loginPass").value)!==user.passHash){ error.textContent="Invalid username or password."; return; }
       currentUser={role:user.role,name:user.name};
       sessionStorage.setItem(AUTH_KEY,JSON.stringify(currentUser));
