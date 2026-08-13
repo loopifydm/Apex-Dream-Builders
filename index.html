@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APEX Dream Builders & Engineers | Construction Management</title>
+  <meta name="description" content="Construction measurement, material purchasing and daily labour management system for APEX Dream Builders & Engineers.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">A</div>
+        <div>
+          <strong>APEX</strong>
+          <span>Dream Builders</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" data-section="dashboard">⌂ <span>Dashboard</span></button>
+        <button class="nav-item" data-section="measurements">▣ <span>Measurements</span></button>
+        <button class="nav-item" data-section="materials">▤ <span>Material Buying</span></button>
+        <button class="nav-item" data-section="labour">♙ <span>Daily Labour</span></button>
+        <button class="nav-item" data-section="supervisors">♙ <span>Supervisors</span></button>
+        <button class="nav-item" data-section="reports">▥ <span>Reports</span></button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="status-dot"></div>
+        <div>
+          <small>System status</small>
+          <strong>Local data active</strong>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu">☰</button>
+        <div>
+          <p class="eyebrow">CONSTRUCTION MANAGEMENT</p>
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="top-actions">
+          <span class="today" id="today"></span>
+          <button class="btn btn-primary" data-action="quick-add">+ Add Entry</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section id="dashboard" class="section active">
+          <div class="hero">
+            <div>
+              <span class="badge">APEX CONTROL CENTER</span>
+              <h2>Build smarter. Measure accurately. Track every worker.</h2>
+              <p>Manage site measurements, material purchases and daily labour entries from one construction dashboard.</p>
+            </div>
+            <div class="hero-shape">A<span>+</span></div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card"><span>Measurement Records</span><strong id="statMeasurements">0</strong><small>All sites</small></div>
+            <div class="stat-card"><span>Material Purchases</span><strong id="statMaterials">0</strong><small>Purchase entries</small></div>
+            <div class="stat-card"><span>Today's Labour</span><strong id="statLabour">0</strong><small>Total workers</small></div>
+            <div class="stat-card"><span>Active Supervisors</span><strong id="statSupervisors">0</strong><small>Registered names</small></div>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="panel">
+              <div class="panel-head"><div><h3>Recent Labour Entries</h3><p>Latest supervisor submissions</p></div><button class="text-btn" data-section-link="labour">View all →</button></div>
+              <div id="recentLabour" class="table-wrap"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><div><h3>Recent Material Buying</h3><p>Latest purchase records</p></div><button class="text-btn" data-section-link="materials">View all →</button></div>
+              <div id="recentMaterials" class="table-wrap"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="measurements" class="section">
+          <div class="section-head">
+            <div><h2>Site Measurements</h2><p>Record dimensions and automatically calculate quantity.</p></div>
+            <button class="btn btn-primary" data-action="measurement">+ New Measurement</button>
+          </div>
+          <div class="filters">
+            <input id="measurementSearch" placeholder="Search site, work or supervisor...">
+            <select id="measurementSiteFilter"><option value="">All sites</option></select>
+            <input type="date" id="measurementDateFilter">
+          </div>
+          <div class="panel"><div id="measurementTable" class="table-wrap"></div></div>
+        </section>
+
+        <section id="materials" class="section">
+          <div class="section-head">
+            <div><h2>Material Buying</h2><p>Track purchases, supplier, quantity, rate and total cost.</p></div>
+            <button class="btn btn-primary" data-action="material">+ New Purchase</button>
+          </div>
+          <div class="filters">
+            <input id="materialSearch" placeholder="Search material, supplier, site...">
+            <select id="materialSiteFilter"><option value="">All sites</option></select>
+            <input type="date" id="materialDateFilter">
+          </div>
+          <div class="panel"><div id="materialTable" class="table-wrap"></div></div>
+        </section>
+
+        <section id="labour" class="section">
+          <div class="section-head">
+            <div><h2>Daily Labour</h2><p>Supervisors can record worker counts by category and shift.</p></div>
+            <button class="btn btn-primary" data-action="labour">+ Add Labour</button>
+          </div>
+          <div class="filters">
+            <input id="labourSearch" placeholder="Search site, supervisor or category...">
+            <select id="labourSiteFilter"><option value="">All sites</option></select>
+            <input type="date" id="labourDateFilter">
+          </div>
+          <div class="panel"><div id="labourTable" class="table-wrap"></div></div>
+        </section>
+
+        <section id="supervisors" class="section">
+          <div class="section-head">
+            <div><h2>Supervisors</h2><p>Maintain the names used for daily uploads and records.</p></div>
+            <button class="btn btn-primary" data-action="supervisor">+ Add Supervisor</button>
+          </div>
+          <div class="supervisor-grid" id="supervisorGrid"></div>
+        </section>
+
+        <section id="reports" class="section">
+          <div class="section-head">
+            <div><h2>Reports & Data</h2><p>Export your construction records for Excel or backup.</p></div>
+            <div class="button-row">
+              <button class="btn btn-secondary" data-action="export-csv">Export CSV</button>
+              <button class="btn btn-primary" data-action="backup">Backup JSON</button>
+            </div>
+          </div>
+          <div class="report-grid">
+            <div class="report-card"><span>Measurement Quantity</span><strong id="reportQuantity">0</strong><small>Total calculated quantity</small></div>
+            <div class="report-card"><span>Material Spend</span><strong id="reportSpend">₹0</strong><small>All recorded purchases</small></div>
+            <div class="report-card"><span>Labour Count</span><strong id="reportWorkers">0</strong><small>All recorded worker counts</small></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h3>How this system works</h3><p>Recommended workflow for APEX site teams.</p></div></div>
+            <div class="workflow">
+              <div><b>01</b><span><strong>Supervisor</strong><small>Records daily workers and site activity.</small></span></div>
+              <div><b>02</b><span><strong>Engineer / Site team</strong><small>Records measurements with dimensions and work details.</small></span></div>
+              <div><b>03</b><span><strong>Purchase team</strong><small>Records material purchases and supplier costs.</small></span></div>
+              <div><b>04</b><span><strong>Management</strong><small>Reviews dashboard and exports reports.</small></span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" id="modal"></div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
