@@ -1,7 +1,8 @@
-// APEX Dream Builders authentication v10
-const AUTH_KEY = "apexAuthV10";
+// APEX Dream Builders authentication v11
+const AUTH_KEY = "apexAuthV11";
 const USERS = {
   "apex admin": { role: "admin", name: "Apex Admin", passHash: "4e13cc3419dd7fc5bc552e6d6e942081dcefe8a913250aa4ba18e1ef0ec1b2f" },
+  "apexadmin": { role: "admin", name: "Apex Admin", passHash: "4e13cc3419dd7fc5bc552e6d6e942081dcefe8a913250aa4ba18e1ef0ec1b2f" },
   "mani": { role: "supervisor", name: "Mani", passHash: "ffede868630e4e4acf9f46e18d6c926e35153553c8077f5cb20ae84b1b88ba36" },
   "prasanth": { role: "supervisor", name: "Prasanth", passHash: "aa1f26d2e58f122d775e6a49d01a13ac5ef72d813263836759ca8cda3e56d54e" }
 };
@@ -13,11 +14,8 @@ const ALLOWED_SECTIONS = new Set(["dashboard","measurements","materials","labour
 const ALLOWED_ACTIONS = new Set(["measurement","material","labour","close-modal"]);
 
 async function sha256(value) {
-  if (window.crypto?.subtle) {
-    const digest = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
-    return Array.from(new Uint8Array(digest)).map(x=>x.toString(16).padStart(2,"0")).join("");
-  }
-  return null;
+  const digest = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest)).map(x=>x.toString(16).padStart(2,"0")).join("");
 }
 
 function authScreen() {
@@ -29,7 +27,7 @@ function authScreen() {
     e.preventDefault();
     const username = document.getElementById("loginUser").value.trim().toLowerCase().replace(/\s+/g," ");
     const password = document.getElementById("loginPass").value.trim();
-    const key = username === "apexadmin" ? "apex admin" : username;
+    const key = username === "apexadmin" ? "apexadmin" : username;
     const user = USERS[key];
     const error = document.getElementById("loginError");
     let valid = false;
@@ -40,10 +38,10 @@ function authScreen() {
     if (!valid) { error.textContent = "Invalid username or password."; return; }
     currentUser = { role:user.role, name:user.name };
     sessionStorage.setItem(AUTH_KEY, JSON.stringify(currentUser));
-    window.location.replace(window.location.pathname + "?session=1");
+    window.location.replace(window.location.pathname + "?session=11");
   });
 }
-function logout(){ sessionStorage.removeItem(AUTH_KEY); currentUser=null; window.location.replace(window.location.pathname+"?logout=1"); }
+function logout(){ sessionStorage.removeItem(AUTH_KEY); currentUser=null; window.location.replace(window.location.pathname+"?logout=11"); }
 function addUserControls(){
   const top=document.querySelector(".top-actions");
   if(!top || document.getElementById("userBadge")) return;
