@@ -1,4 +1,4 @@
-// APEX Dream Builders authentication v14
+// APEX Dream Builders authentication v15
 const AUTH_KEY = "apexAuthV13";
 const ADMIN_HASHES = new Set([
   "4e13cc3419dd7fc5bc552e6d6e942081dcefe8a913250aa4ba18e1ef0ec1b2f", // Apexdream
@@ -13,6 +13,7 @@ const USERS = {
 };
 let currentUser = null;
 try { currentUser = JSON.parse(sessionStorage.getItem(AUTH_KEY) || "null"); } catch (_) { currentUser = null; }
+window.currentUser = currentUser;
 const isAdmin = () => currentUser?.role === "admin";
 const isSupervisor = () => currentUser?.role === "supervisor";
 const ALLOWED_SECTIONS = new Set(["dashboard","measurements","materials","labour","vendorPayments"]);
@@ -38,11 +39,12 @@ function authScreen(){
       if(!valid){error.textContent="Invalid username or password.";return;}
     }catch(err){error.textContent="Login service unavailable. Please refresh and try again.";return;}
     currentUser={role:user.role,name:user.name};
+    window.currentUser=currentUser;
     sessionStorage.setItem(AUTH_KEY,JSON.stringify(currentUser));
-    window.location.replace(window.location.pathname+"?session=14");
+    window.location.replace(window.location.pathname+"?session=15");
   });
 }
-function logout(){sessionStorage.removeItem(AUTH_KEY);currentUser=null;window.location.replace(window.location.pathname+"?logout=14");}
+function logout(){sessionStorage.removeItem(AUTH_KEY);currentUser=null;window.currentUser=null;window.location.replace(window.location.pathname+"?logout=15");}
 function addUserControls(){
   const top=document.querySelector(".top-actions"); if(!top||document.getElementById("userBadge"))return;
   top.insertAdjacentHTML("afterbegin",`<span class="user-badge" id="userBadge"></span><button class="btn btn-secondary" id="logoutBtn">Logout</button>`);
@@ -62,23 +64,24 @@ function forceSupervisor(formId){
   const input=form.querySelector('input[name="supervisor"]');
   if(input)input.value=currentUser.name;
 }
+function loadVendorPaymentsModule(done){
+  if(window.initVendorPayments){done?.();return;}
+  const script=document.createElement('script');
+  script.src='vendor-payments.js?v=1';
+  script.onload=()=>done?.();
+  script.onerror=()=>console.error('APEX: Vendor Payments module failed to load.');
+  document.body.appendChild(script);
+}
 function applyRoleAccess(){
   if(!currentUser){authScreen();return;}
+  window.currentUser=currentUser;
   document.getElementById("authRoot")?.classList.remove("show");addUserControls();
-  if(!isSupervisor()){
-    window.renderVendorPayments?.();
-    return;
-  }
+  if(!isSupervisor()){window.renderVendorPayments?.();return;}
   document.querySelectorAll('.nav-item').forEach(el=>{el.hidden=!ALLOWED_SECTIONS.has(el.dataset.section);});
   document.querySelectorAll('.section').forEach(el=>{el.hidden=!ALLOWED_SECTIONS.has(el.id);});
   document.querySelectorAll('[data-action="quick-add"],[data-action="supervisor"],[data-action="export-csv"],[data-action="backup"],[data-delete]').forEach(el=>el.hidden=true);
   window.renderVendorPayments?.();
-  new MutationObserver(()=>{
-    document.querySelectorAll('.nav-item').forEach(el=>{el.hidden=!ALLOWED_SECTIONS.has(el.dataset.section);});
-    document.querySelectorAll('.section').forEach(el=>{el.hidden=!ALLOWED_SECTIONS.has(el.id);});
-    document.querySelectorAll('[data-action="quick-add"],[data-action="supervisor"],[data-action="export-csv"],[data-action="backup"],[data-delete]').forEach(el=>el.hidden=true);
-    window.renderVendorPayments?.();
-  }).observe(document.body,{subtree:true,childList:true});
+  new MutationObserver(()=>{document.querySelectorAll('.nav-item').forEach(el=>{el.hidden=!ALLOWED_SECTIONS.has(el.dataset.section);});document.querySelectorAll('.section').forEach(el=>{el.hidden=!ALLOWED_SECTIONS.has(el.id);});document.querySelectorAll('[data-action="quick-add"],[data-action="supervisor"],[data-action="export-csv"],[data-action="backup"],[data-delete]').forEach(el=>el.hidden=true);window.renderVendorPayments?.();}).observe(document.body,{subtree:true,childList:true});
 }
 document.addEventListener("click",e=>{
   if(!isSupervisor())return;
@@ -89,4 +92,4 @@ document.addEventListener("click",e=>{
   const del=e.target.closest('[data-delete]');if(del){e.preventDefault();e.stopImmediatePropagation();showToast('Supervisors cannot delete records.');return;}
 },{capture:true});
 document.addEventListener("submit",e=>{if(isSupervisor()&&["measurementForm","materialForm","labourForm","vendorPaymentForm"].includes(e.target.id))forceSupervisor(e.target.id);},{capture:true});
-window.addEventListener("DOMContentLoaded",()=>{if(currentUser)ensureConfiguredSupervisors();applyRoleAccess();});
+window.addEventListener("DOMContentLoaded",()=>{if(!currentUser){applyRoleAccess();return;}ensureConfiguredSupervisors();loadVendorPaymentsModule(()=>applyRoleAccess());});
