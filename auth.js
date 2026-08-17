@@ -1,4 +1,4 @@
-// APEX Dream Builders authentication v13
+// APEX Dream Builders authentication v14
 const AUTH_KEY = "apexAuthV13";
 const ADMIN_HASHES = new Set([
   "4e13cc3419dd7fc5bc552e6d6e942081dcefe8a913250aa4ba18e1ef0ec1b2f", // Apexdream
@@ -15,8 +15,8 @@ let currentUser = null;
 try { currentUser = JSON.parse(sessionStorage.getItem(AUTH_KEY) || "null"); } catch (_) { currentUser = null; }
 const isAdmin = () => currentUser?.role === "admin";
 const isSupervisor = () => currentUser?.role === "supervisor";
-const ALLOWED_SECTIONS = new Set(["dashboard","measurements","materials","labour"]);
-const ALLOWED_ACTIONS = new Set(["measurement","material","labour","close-modal"]);
+const ALLOWED_SECTIONS = new Set(["dashboard","measurements","materials","labour","vendorPayments"]);
+const ALLOWED_ACTIONS = new Set(["measurement","material","labour","vendor-payment","close-modal"]);
 async function sha256(value){
   const digest = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
   return Array.from(new Uint8Array(digest)).map(x=>x.toString(16).padStart(2,"0")).join("");
@@ -39,10 +39,10 @@ function authScreen(){
     }catch(err){error.textContent="Login service unavailable. Please refresh and try again.";return;}
     currentUser={role:user.role,name:user.name};
     sessionStorage.setItem(AUTH_KEY,JSON.stringify(currentUser));
-    window.location.replace(window.location.pathname+"?session=13");
+    window.location.replace(window.location.pathname+"?session=14");
   });
 }
-function logout(){sessionStorage.removeItem(AUTH_KEY);currentUser=null;window.location.replace(window.location.pathname+"?logout=13");}
+function logout(){sessionStorage.removeItem(AUTH_KEY);currentUser=null;window.location.replace(window.location.pathname+"?logout=14");}
 function addUserControls(){
   const top=document.querySelector(".top-actions"); if(!top||document.getElementById("userBadge"))return;
   top.insertAdjacentHTML("afterbegin",`<span class="user-badge" id="userBadge"></span><button class="btn btn-secondary" id="logoutBtn">Logout</button>`);
@@ -59,23 +59,34 @@ function forceSupervisor(formId){
   const form=document.getElementById(formId);if(!form)return;
   const select=form.querySelector('select[name="supervisor"]');
   if(select)select.innerHTML=`<option selected value="${esc(currentUser.name)}">${esc(currentUser.name)} (Logged in)</option>`;
+  const input=form.querySelector('input[name="supervisor"]');
+  if(input)input.value=currentUser.name;
 }
 function applyRoleAccess(){
   if(!currentUser){authScreen();return;}
   document.getElementById("authRoot")?.classList.remove("show");addUserControls();
-  if(!isSupervisor())return;
+  if(!isSupervisor()){
+    window.renderVendorPayments?.();
+    return;
+  }
   document.querySelectorAll('.nav-item').forEach(el=>{el.hidden=!ALLOWED_SECTIONS.has(el.dataset.section);});
   document.querySelectorAll('.section').forEach(el=>{el.hidden=!ALLOWED_SECTIONS.has(el.id);});
   document.querySelectorAll('[data-action="quick-add"],[data-action="supervisor"],[data-action="export-csv"],[data-action="backup"],[data-delete]').forEach(el=>el.hidden=true);
-  new MutationObserver(()=>{document.querySelectorAll('.nav-item').forEach(el=>{el.hidden=!ALLOWED_SECTIONS.has(el.dataset.section);});document.querySelectorAll('.section').forEach(el=>{el.hidden=!ALLOWED_SECTIONS.has(el.id);});document.querySelectorAll('[data-action="quick-add"],[data-action="supervisor"],[data-action="export-csv"],[data-action="backup"],[data-delete]').forEach(el=>el.hidden=true);}).observe(document.body,{subtree:true,childList:true});
+  window.renderVendorPayments?.();
+  new MutationObserver(()=>{
+    document.querySelectorAll('.nav-item').forEach(el=>{el.hidden=!ALLOWED_SECTIONS.has(el.dataset.section);});
+    document.querySelectorAll('.section').forEach(el=>{el.hidden=!ALLOWED_SECTIONS.has(el.id);});
+    document.querySelectorAll('[data-action="quick-add"],[data-action="supervisor"],[data-action="export-csv"],[data-action="backup"],[data-delete]').forEach(el=>el.hidden=true);
+    window.renderVendorPayments?.();
+  }).observe(document.body,{subtree:true,childList:true});
 }
 document.addEventListener("click",e=>{
   if(!isSupervisor())return;
   const nav=e.target.closest('.nav-item');
   if(nav&&!ALLOWED_SECTIONS.has(nav.dataset.section)){e.preventDefault();e.stopImmediatePropagation();showToast('Admin access required.');return;}
   const action=e.target.closest('[data-action]')?.dataset.action;
-  if(action&&!ALLOWED_ACTIONS.has(action)){e.preventDefault();e.stopImmediatePropagation();showToast('Supervisor can add only Measurement, Material Buying and Daily Labour.');return;}
+  if(action&&!ALLOWED_ACTIONS.has(action)){e.preventDefault();e.stopImmediatePropagation();showToast('Supervisor can add only Measurement, Material Buying, Daily Labour and Vendor Payments.');return;}
   const del=e.target.closest('[data-delete]');if(del){e.preventDefault();e.stopImmediatePropagation();showToast('Supervisors cannot delete records.');return;}
 },{capture:true});
-document.addEventListener("submit",e=>{if(isSupervisor()&&["measurementForm","materialForm","labourForm"].includes(e.target.id))forceSupervisor(e.target.id);},{capture:true});
+document.addEventListener("submit",e=>{if(isSupervisor()&&["measurementForm","materialForm","labourForm","vendorPaymentForm"].includes(e.target.id))forceSupervisor(e.target.id);},{capture:true});
 window.addEventListener("DOMContentLoaded",()=>{if(currentUser)ensureConfiguredSupervisors();applyRoleAccess();});
