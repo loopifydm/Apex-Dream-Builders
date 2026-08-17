@@ -182,7 +182,7 @@ function csvDownload(filename, rows){
 }
 function exportCSV(){
   const rows=[["TYPE","DATE","SITE","DESCRIPTION","SUPERVISOR","CATEGORY","LENGTH","BREADTH","HEIGHT","QUANTITY","UNIT","RATE","TOTAL","NOTES"]];
-  state.measurements.forEach(x=>rows.push(["MEASUREMENT",x.date,x.site,x.work,x.supervisor,"",x.lemgth,x.breadth,x.height,x.quantity,x.unit,"","",x.notes]));
+  state.measurements.forEach(x=>rows.push(["MEASUREMENT",x.date,x.site,x.work,x.supervisor,"",x.length,x.breadth,x.height,x.quantity,x.unit,"","",x.notes]));
   state.materials.forEach(x=>rows.push(["MATERIAL",x.date,x.site,x.item,x.supervisor,"",x.qty,x.unit,x.rate,x.total,x.notes]));
   state.labour.forEach(x=>rows.push(["LABOUR",x.date,x.site,"",x.supervisor,x.category,x.count,"","","",x.notes]));
   csvDownload("apex-construction-report.csv",rows);showToast("CSV report exported.");
