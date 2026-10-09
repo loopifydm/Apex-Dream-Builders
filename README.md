@@ -70,3 +70,31 @@ Add:
 **APEX Dream Builders & Engineers**
 
 Use this as the foundation for a production construction ERP / site management portal.
+
+
+## PWA setup
+
+The repository now includes the initial Progressive Web App shell:
+
+- `manifest.webmanifest` — app name, launch URL, standalone display and theme colours.
+- `service-worker.js` — caches the local app shell and provides a network fallback for navigation.
+- `icons/apex-icon.svg` — APEX app icon.
+- `index.html` — links the manifest and registers the service worker.
+
+### Publish and install
+
+1. Open **Settings → Pages** and confirm the `main` branch and `/ (root)` are published.
+2. Wait for the Pages deployment to finish and open the HTTPS website in Chrome on Android.
+3. Open Chrome's menu and choose **Install app** or **Add to Home screen**.
+4. Open the installed app once while online so the service worker can cache its app shell.
+
+### Offline behaviour and limitations
+
+- The app shell can load offline after the first successful online visit and service-worker installation.
+- Existing records are stored in browser `localStorage`; they remain local to that browser/device and are not synced across devices.
+- External Google Fonts may not be available offline.
+- Do not treat local browser storage as a secure, shared production database.
+
+### Push notifications
+
+The service worker includes handlers for receiving and displaying push messages, but push delivery is **not fully configured** by this repository alone. A static GitHub Pages site cannot securely send push messages. To activate push subscriptions and delivery, configure a push provider/backend (for example, Firebase Cloud Messaging or a server using Web Push/VAPID), its public client configuration, and a secure endpoint to save subscriptions and send notifications. Never place a private VAPID key or server credential in frontend files.
