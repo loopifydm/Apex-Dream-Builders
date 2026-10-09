@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>APEX Dream Builders & Engineers | Construction Management</title>
   <meta name="description" content="Construction measurement, material purchasing and daily labour management system for APEX Dream Builders & Engineers.">
+  <meta name="theme-color" content="#10243d">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="APEX Builders">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/apex-icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/apex-icon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -54,5 +62,14 @@
   </script>
   <script src="app.js?v=13"></script>
   <script src="auth.js?v=14"></script>
+  <script>
+    // Register the PWA worker without blocking the existing application scripts.
+    if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./service-worker.js")
+          .catch(function (error) { console.error("APEX PWA service worker registration failed:", error); });
+      });
+    }
+  </script>
 </body>
 </html>
