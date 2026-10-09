@@ -1,0 +1,24 @@
+{
+  "id": "./",
+  "name": "APEX Dream Builders & Engineers",
+  "short_name": "APEX Builders",
+  "description": "Construction management for site measurements, material purchases and daily labour.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "background_color": "#f4f7fb",
+  "theme_color": "#10243d",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./icons/apex-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
